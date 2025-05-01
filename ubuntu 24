@@ -1,0 +1,36 @@
+Set up the required keys
+The following commands were used to install the certificates that apt needs to verify Docker’s packages:
+
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+Add the Docker repository
+After setting up the required keys, the next order of business is installing the repository that we’ll use to install Docker.
+
+echo \
+"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+$(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+Now that the repository has been added, let’s install the packages we need:
+
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+After that, we can run a test container to see whether or not Docker is working:
+
+sudo docker run hello-world
+If it bothers you to add sudo to every command while working with docker, consider adding your user account to the docker group:
+
+sudo usermod -aG docker jay
+If you do that, once you log out and log in again you won’t need sudo anymore:
+
+docker run hello-world
+Install Portainer
+First, let’s create a volume that Portainer will use in order to save persistent data:
+
+docker volume create portainer_data
+Then, we can install Portainer. The following command will install Portainer by downloading and running the official container image:
+
+docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
